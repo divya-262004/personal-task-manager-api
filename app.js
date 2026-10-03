@@ -11,7 +11,7 @@ const app=express();
 const PORT=config.port;
 
 app.use(express.json());
-app.use(errorMiddleWare);
+
 
 app.use("/auth", authRoutes);
 
@@ -22,6 +22,8 @@ app.get('/',(req, res)=>{
 })
 
 app.use("/tasks",taskRoutes);
+
+app.use(errorMiddleWare);
 
 const startServer = async () => {
   try{
