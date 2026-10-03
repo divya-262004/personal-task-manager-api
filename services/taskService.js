@@ -2,6 +2,14 @@ import { Task } from "../models/index.js";
 import AppError from "../utils/AppError.js";
 import { Op, literal } from "sequelize";
 
+import { 
+    clearTaskCache,
+    createTaskCacheKey,
+    getCache, 
+    setCache 
+    } 
+      from "../utils/cache.js";
+
 export const createTask = async ({
     title,
     description,
@@ -19,58 +27,56 @@ export const createTask = async ({
         userId
     });
 
+    clearTaskCache(userId);
+
     return task;
 };
 
-export const getTasks = async (
-    userId,
-    {
-        priority,
-        status,
-        dueDateFrom,
-        dueDateTo,
-        sortBy,
-        order,
-        page = 1,
-        limit = 10
-    } = {}
-) => {
+export const getTasks = async ( userId, filters) => {
+
+    const cachKey=createTaskCacheKey(userId, filters);
+    const cachResult=getCache(cachKey);
+
+    if(cachResult){
+        return cachResult;
+    }
+
     const where = {
         userId
     };
 
-    if (priority) {
-        where.priority = priority;
+    if (filters.priority) {
+        where.priority = filters.priority;
     }
 
-    if (status) {
-        where.status = status;
+    if (filters.status) {
+        where.status = filters.status;
     }
 
-    if (dueDateFrom || dueDateTo) {
+    if (filters.dueDateFrom || filters.dueDateTo) {
         where.dueDate = {};
 
-        if (dueDateFrom) {
-            where.dueDate[Op.gte] = dueDateFrom;
+        if (filters.dueDateFrom) {
+            where.dueDate[Op.gte] = filters.dueDateFrom;
         }
 
-        if (dueDateTo) {
-            where.dueDate[Op.lte] = dueDateTo;
+        if (filters.dueDateTo) {
+            where.dueDate[Op.lte] =filters.dueDateTo;
         }
     }
 
-    let orderBy = [["dueDate", "ASC"]];
+    let orderBy = [];
 
-    if (sortBy === "dueDate") {
+    if (filters.sortBy === "dueDate") {
         orderBy = [
             [
                 "dueDate",
-                order === "desc" ? "DESC" : "ASC"
+                filters.order === "desc" ? "DESC" : "ASC"
             ]
         ];
     }
 
-    if (sortBy === "priority") {
+    if (filters.sortBy === "priority") {
         orderBy = [
             [
                 literal(`
@@ -80,29 +86,34 @@ export const getTasks = async (
                         WHEN "priority" = 'high' THEN 3
                     END
                 `),
-                order === "desc" ? "DESC" : "ASC"
+                filters.order === "desc" ? "DESC" : "ASC"
             ]
         ];
     }
 
-    const pageNumber = Number(page);
-    const pageSize = Number(limit);
+    const pageNumber = Number(filters.page);
+    const pageSize = Number(filters.limit);
     const offset = (pageNumber - 1) * pageSize;
 
-    const result = await Task.findAndCountAll({
+    const {count, rows} = await Task.findAndCountAll({
         where,
         order: orderBy,
         limit: pageSize,
         offset
     });
 
-    return {
-        tasks: result.rows,
-        totalTasks: result.count,
+    const result= {
+        tasks: rows,
+        totalTasks: count,
         currentPage: pageNumber,
-        totalPages: Math.ceil(result.count / pageSize),
+        totalPages: Math.ceil(count / pageSize),
         limit: pageSize
     };
+
+    setCache(cachKey, result);
+
+    return result;
+
 };
 
 export const getTaskById = async (taskId, userId) => {
@@ -138,6 +149,8 @@ export const updateTask = async (
 
     await task.update(taskData);
 
+    clearTaskCache(userId);
+
     return task;
 };
 
@@ -157,4 +170,5 @@ export const deleteTask = async (
     }
 
     await task.destroy();
+    clearTaskCache(userId);
 };
