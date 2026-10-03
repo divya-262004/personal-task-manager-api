@@ -1,0 +1,123 @@
+import {
+    createTask,
+    getTasks,
+    getTaskById,
+    updateTask,
+    deleteTask
+} from "../services/taskService.js"
+
+export const createTaskController = async (req, res, next) => {
+    try {
+        const {
+            title,
+            description,
+            priority,
+            dueDate,
+            status
+        } = req.body;
+
+        const task = await createTask({
+            title,
+            description,
+            priority,
+            dueDate,
+            status,
+            userId: req.userId
+        });
+
+        return res.status(201).json({
+            message: "Task created successfully",
+            task
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getTasksController = async (req, res, next) => {
+    try {
+        
+        const tasks = await getTasks(req.userId);
+
+        return res.status(200).json({
+            tasks
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getTaskByIdController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const task = await getTaskById(
+            id,
+            req.userId
+        );
+
+        return res.status(200).json({
+            task
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateTaskController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const allowedFields = [
+            "title",
+            "description",
+            "priority",
+            "dueDate",
+            "status"
+        ];
+
+        const taskData = {};
+
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                taskData[field] = req.body[field];
+            }
+        }
+
+        if (Object.keys(taskData).length === 0) {
+            return res.status(400).json({
+                message: "At least one valid field is required"
+            });
+        }
+
+        const task = await updateTask(
+            id,
+            req.userId,
+            taskData
+        );
+
+        return res.status(200).json({
+            message: "Task updated successfully",
+            task
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const deleteTaskController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        await deleteTask(
+            id,
+            req.userId
+        );
+
+        return res.status(200).json({
+            message: "Task deleted successfully"
+        });
+    } catch (error) {
+        next(error);
+    }
+};
