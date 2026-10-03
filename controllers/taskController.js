@@ -37,10 +37,32 @@ export const createTaskController = async (req, res, next) => {
 export const getTasksController = async (req, res, next) => {
     try {
         
-        const tasks = await getTasks(req.userId);
+        const {
+            priority,
+            status,
+            dueDateFrom,
+            dueDateTo,
+            sortBy,
+            order,
+            Page='1',
+            limit='10'
+        } = req.query;
+        const result=await getTasks(
+            req.userId,
+        {
+            priority,
+            status,
+            dueDateFrom,
+            dueDateTo,
+            sortBy,
+            order,
+            Page,
+            limit
+        }
+        );
 
         return res.status(200).json({
-            tasks
+            result
         });
     } catch (error) {
         next(error);
