@@ -44,9 +44,9 @@ export const getTasksController = async (req, res, next) => {
             dueDateTo,
             sortBy,
             order,
-            Page='1',
-            limit='10'
-        } = req.query;
+            page=1,
+            limit=10
+        } = req.validatedQuery;
         const result=await getTasks(
             req.userId,
         {
@@ -56,14 +56,12 @@ export const getTasksController = async (req, res, next) => {
             dueDateTo,
             sortBy,
             order,
-            Page,
+            page,
             limit
         }
         );
 
-        return res.status(200).json({
-            result
-        });
+        return res.status(200).json(result);
     } catch (error) {
         next(error);
     }
@@ -136,7 +134,7 @@ export const deleteTaskController = async (req, res, next) => {
             req.userId
         );
 
-        return res.status(200).json({
+        return res.status(204).json({
             message: "Task deleted successfully"
         });
     } catch (error) {
