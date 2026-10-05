@@ -2,59 +2,60 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Task',{
-      id:{
-        type:Sequelize.INTEGER,
-        allowNull:false,
-        autoIncrement:true,
-        primaryKey:true
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Task', {
+      id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
       },
-      title:{
-        type:Sequelize.STRING,
-        allowNull:false
+      title: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      description:{
-        type:Sequelize.TEXT,
-        allowNull:true
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
-      priority:{
-        type:Sequelize.ENUM('low', 'medium', 'high'),
-        allowNull:false
+      priority: {
+        // eslint-disable-next-line new-cap
+        type: Sequelize.ENUM('low', 'medium', 'high'),
+        allowNull: false,
       },
-      dueDate:{
-        type:Sequelize.DATE,
-        allowNull:false
+      dueDate: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
-      status:{
-        type:Sequelize.STRING,
-        allowNull:false
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      userId:{
-        type:Sequelize.INTEGER,
-        allowNull:false,
-        references:{
-          model:'User',
-          key:'id'
-        }
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'User',
+          key: 'id',
+        },
       },
-      updatedAt:{
-        type:Sequelize.DATE,
-        allowNull:false
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
-      createdAt:{
-        type:Sequelize.DATE,
-        allowNull:false
-      }
-    })
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
 
     await queryInterface.addConstraint('Task', {
       fields: ['status'],
       type: 'check',
       where: {
-        status: ['pending', 'completed']
+        status: ['pending', 'completed'],
       },
-      name: 'task_status_check'
+      name: 'task_status_check',
     });
     /**
      * Add altering commands here.
@@ -64,7 +65,7 @@ module.exports = {
      */
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Task');
     /**
      * Add reverting commands here.
@@ -72,5 +73,5 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-  }
+  },
 };

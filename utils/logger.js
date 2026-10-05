@@ -1,14 +1,14 @@
 import winston from 'winston';
 
 const logger = winston.createLogger({
-  level:'info',
+  level: 'info',
 
   format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json(),
+      winston.format.timestamp(),
+      winston.format.json(),
   ),
 
-  transports:[
+  transports: [
     new winston.transports.Console(),
   ],
 });

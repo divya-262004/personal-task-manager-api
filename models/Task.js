@@ -1,42 +1,43 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../connection/database.js";
+import {DataTypes} from 'sequelize';
+import sequelize from '../connection/database.js';
 
 const Task = sequelize.define(
-    "Task",
+    'Task',
     {
-        title: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
 
-        description: {
-            type: DataTypes.TEXT
-        },
+      description: {
+        type: DataTypes.TEXT,
+      },
 
-        priority: {
-            type: DataTypes.ENUM("low","medium","high"),
-            allowNull: false
-        },
+      priority: {
+        // eslint-disable-next-line new-cap
+        type: DataTypes.ENUM('low', 'medium', 'high'),
+        allowNull: false,
+      },
 
-        dueDate: {
-            type: DataTypes.DATE,
-            allowNull: false
-        },
+      dueDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
 
-        status: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
 
-        userId: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        }
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     {
-        tableName: "Task",
-        timestamps: true
-    }
+      tableName: 'Task',
+      timestamps: true,
+    },
 );
 
 export default Task;

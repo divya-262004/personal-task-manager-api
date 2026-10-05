@@ -1,24 +1,24 @@
-import express from "express"
-import { register, login } from "../controllers/authController.js"
-import createRateLimiter from "../middleware/ratelimiting.js"
+import express from 'express';
+import {register, login} from '../controllers/authController.js';
+import createRateLimiter from '../middleware/ratelimiting.js';
 
-import validate from "../middleware/validate.js";
+import validate from '../middleware/validate.js';
 import {
-    registerSchema,
-    loginSchema
-} from "../validations/authValidation.js"
-
+  registerSchema,
+  loginSchema,
+} from '../validations/authValidation.js';
+// eslint-disable-next-line new-cap
 const router=express.Router();
-const loginRateLimiter=createRateLimiter(60*1000, 5)
+const loginRateLimiter=createRateLimiter(60*1000, 5);
 
 router.post(
-    "/register", 
-    validate(registerSchema), 
+    '/register',
+    validate(registerSchema),
     register);
 router.post(
-    "/login", 
-    validate(loginSchema), 
-    loginRateLimiter, 
-    login)
+    '/login',
+    validate(loginSchema),
+    loginRateLimiter,
+    login);
 
 export default router;

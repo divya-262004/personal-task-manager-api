@@ -1,30 +1,29 @@
-import AppError from "../utils/AppError.js";
+import AppError from '../utils/AppError.js';
 
-const validate=(schema, property="body")=>{
-    return (req, res, next)=>{
-        const {error, value}=schema.validate(req[property],{
-            abortEarly:false
-        })
+const validate=(schema, property='body')=>{
+  return (req, res, next)=>{
+    const {error, value}=schema.validate(req[property], {
+      abortEarly: false,
+    });
 
-        if(error){
-            const message=error.details
-                .map((detail)=>detail.message)
-                .join(", ");
+    if (error) {
+      const message=error.details
+          .map((detail)=>detail.message)
+          .join(', ');
 
-            return next(new AppError(message, 400))
-        }
-
-        if (property === "body") {
-            req.body = value;
-        }
-
-        if (property === "query") {
-            req.validatedQuery = value;
-        }
-
-        return next();
-
+      return next(new AppError(message, 400));
     }
-}
+
+    if (property === 'body') {
+      req.body = value;
+    }
+
+    if (property === 'query') {
+      req.validatedQuery = value;
+    }
+
+    return next();
+  };
+};
 
 export default validate;

@@ -1,15 +1,15 @@
-import express from "express"
-import swaggerUi from "swagger-ui-express"
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
 
-import  config  from "./config/config.js";
-import swaggerSpec from "./config/swagger.js";
+import config from './config/config.js';
+import swaggerSpec from './config/swagger.js';
 
-import sequelize from "./connection/database.js"
+import sequelize from './connection/database.js';
 
-import authRoutes from "./routes/authRoutes.js"
-import errorMiddleWare from "./middleware/errorMiddleWare.js";
-import taskRoutes from "./routes/taskRoutes.js"
-import logger from "./utils/logger.js"
+import authRoutes from './routes/authRoutes.js';
+import errorMiddleWare from './middleware/errorMiddleWare.js';
+import taskRoutes from './routes/taskRoutes.js';
+import logger from './utils/logger.js';
 
 const app=express();
 
@@ -17,34 +17,33 @@ const PORT=config.port;
 
 app.use(express.json());
 
-app.use("/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec)
+app.use('/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec),
 );
 
-app.use("/auth", authRoutes);
+app.use('/auth', authRoutes);
 
-app.get('/',(req, res)=>{
-    res.json({
-        message:'Personal task Manager Api'
-    })
-})
+app.get('/', (req, res)=>{
+  res.json({
+    message: 'Personal task Manager Api',
+  });
+});
 
-app.use("/tasks",taskRoutes);
+app.use('/tasks', taskRoutes);
 
 app.use(errorMiddleWare);
 
 const startServer = async () => {
-  try{
+  try {
     await sequelize.authenticate();
 
     logger.info('Database connected successfully');
 
-    app.listen(PORT,() => logger.info(`server running at port ${PORT}`));
-        
-  }catch(error){
-    logger.error('Database connection failed: ',{
-      error:error.message,
+    app.listen(PORT, () => logger.info(`server running at port ${PORT}`));
+  } catch (error) {
+    logger.error('Database connection failed: ', {
+      error: error.message,
     });
   }
 };
