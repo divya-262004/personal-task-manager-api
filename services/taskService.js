@@ -1,6 +1,6 @@
 import { Task } from "../models/index.js";
 import AppError from "../utils/AppError.js";
-import { Op, literal } from "sequelize";
+import { Op } from "sequelize";
 
 import { 
     clearTaskCache,
@@ -8,7 +8,7 @@ import {
     getCache, 
     setCache 
     } 
-      from "../utils/cache.js";
+    from "../utils/cache.js";
 
 export const createTask = async ({
     title,
@@ -78,17 +78,8 @@ export const getTasks = async ( userId, filters) => {
 
     if (filters.sortBy === "priority") {
         orderBy = [
-            [
-                literal(`
-                    CASE
-                        WHEN "priority" = 'low' THEN 1
-                        WHEN "priority" = 'medium' THEN 2
-                        WHEN "priority" = 'high' THEN 3
-                    END
-                `),
-                filters.order === "desc" ? "DESC" : "ASC"
-            ]
-        ];
+                ["priority", filters.order === "desc" ? "DESC" : "ASC" ]
+            ];
     }
 
     const pageNumber = Number(filters.page);
