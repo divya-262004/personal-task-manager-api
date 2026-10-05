@@ -1,5 +1,5 @@
-import User from "./user.js";
-import Task from "./task.js";
+import User from "./User.js";
+import Task from "./Task.js";
 
 User.hasMany(Task, {
     foreignKey: "userId"
