@@ -1,10 +1,11 @@
 import express from "express"
 import  authMiddleWare  from "../middleware/authMiddleware.js"
+import validate from "../middleware/validate.js";
 import {
-    validateCreateTask,
-    validateUpdateTask,
-    validateTaskQuery
-} from "../middleware/taskValidation.js";
+    createTaskSchema,
+    updateTaskSchema,
+    taskQuerySchema
+} from "../validations/taskValidation.js"
 
 import {
     createTaskController,
@@ -18,10 +19,22 @@ const router = express.Router();
 
 router.use(authMiddleWare);
 
-router.post("/", validateCreateTask,createTaskController);
-router.get("/",validateTaskQuery,getTasksController);
+router.post(
+    "/", 
+    validate(createTaskSchema),
+    createTaskController
+);
+router.get(
+    "/",
+    validate(taskQuerySchema, "query"),
+    getTasksController
+);
 router.get("/:id", getTaskByIdController);
-router.patch("/:id", validateUpdateTask, updateTaskController);
+router.patch(
+    "/:id", 
+    validate(updateTaskSchema), 
+    updateTaskController
+);
 router.delete("/:id", deleteTaskController);
 
 export default router;
