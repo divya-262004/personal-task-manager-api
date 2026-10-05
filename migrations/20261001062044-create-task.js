@@ -19,7 +19,7 @@ module.exports = {
         allowNull:true
       },
       priority:{
-        type:Sequelize.STRING,
+        type:Sequelize.ENUM('low', 'medium', 'high'),
         allowNull:false
       },
       dueDate:{
@@ -48,15 +48,6 @@ module.exports = {
       }
     })
 
-    await queryInterface.addConstraint('Task',{
-      fields:['priority'],
-      type:'check',
-      where:{
-        priority:['low', 'medium', 'high']
-      },
-      name:'task_priority_check'
-    });
-
     await queryInterface.addConstraint('Task', {
       fields: ['status'],
       type: 'check',
@@ -74,6 +65,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('Task');
     /**
      * Add reverting commands here.
      *
