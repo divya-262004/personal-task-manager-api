@@ -1,6 +1,6 @@
 import logger from "../utils/logger.js";
 
-const errorMiddleWare = (err, req, res, _next) => {
+const errorMiddleWare = (err, req, res, next) => {
     const statuscode = err.statuscode || 500;
 
     if (statuscode >= 500) {
