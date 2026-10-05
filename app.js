@@ -1,6 +1,11 @@
 import express from "express"
+import swaggerUi from "swagger-ui-express"
+
 import  config  from "./config/config.js";
+import swaggerSpec from "./config/swagger.js";
+
 import sequelize from "./connection/database.js"
+
 import authRoutes from "./routes/authRoutes.js"
 import errorMiddleWare from "./middleware/errorMiddleWare.js";
 import taskRoutes from "./routes/taskRoutes.js"
@@ -12,6 +17,10 @@ const PORT=config.port;
 
 app.use(express.json());
 
+app.use("/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
 
 app.use("/auth", authRoutes);
 
