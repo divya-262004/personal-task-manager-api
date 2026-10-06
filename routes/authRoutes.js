@@ -7,7 +7,7 @@ import {
   registerSchema,
   loginSchema,
 } from '../validations/authValidation.js';
-// eslint-disable-next-line new-cap
+
 const router=express.Router();
 const loginRateLimiter=createRateLimiter(60*1000, 5);
 

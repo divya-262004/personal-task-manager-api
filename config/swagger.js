@@ -58,7 +58,7 @@ const swaggerSpec={
                   email: {
                     type: 'string',
                     format: 'email',
-                    example: 'hema@example.com',
+                    example: 'divya@example.com',
                   },
                   password: {
                     type: 'string',
@@ -109,7 +109,7 @@ const swaggerSpec={
                   email: {
                     type: 'string',
                     format: 'email',
-                    example: 'hema@example.com',
+                    example: 'divya@example.com',
                   },
                   password: {
                     type: 'string',

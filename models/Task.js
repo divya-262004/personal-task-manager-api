@@ -14,7 +14,6 @@ const Task = sequelize.define(
       },
 
       priority: {
-        // eslint-disable-next-line new-cap
         type: DataTypes.ENUM('low', 'medium', 'high'),
         allowNull: false,
       },

@@ -19,7 +19,6 @@ module.exports = {
         allowNull: true,
       },
       priority: {
-        // eslint-disable-next-line new-cap
         type: Sequelize.ENUM('low', 'medium', 'high'),
         allowNull: false,
       },

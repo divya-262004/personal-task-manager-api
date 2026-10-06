@@ -1,7 +1,7 @@
 import logger from '../utils/logger.js';
 
 const errorMiddleWare = (err, req, res, next) => {
-  const statuscode = err.statuscode || 500;
+  const statuscode = err.statusCode || 500;
 
   if (statuscode >= 500) {
     logger.error('Unhandled application error', {
