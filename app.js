@@ -1,9 +1,10 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
+import cors from 'cors';
+import helmet from 'helmet';
 
 import config from './config/config.js';
 import swaggerSpec from './config/swagger.js';
-
 import sequelize from './connection/database.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -12,7 +13,8 @@ import taskRoutes from './routes/taskRoutes.js';
 import logger from './utils/logger.js';
 
 const app=express();
-
+app.use(helmet());
+app.use(cors());
 const PORT=config.port;
 
 app.use(express.json());
@@ -25,8 +27,10 @@ app.use('/api-docs',
 app.use('/auth', authRoutes);
 
 app.get('/', (req, res)=>{
-  res.json({
-    message: 'Personal task Manager Api',
+  res.status(200).json({
+    status: 'ok',
+    service: 'Personal Task Manager API',
+    timestamp: new Date().toISOString(),
   });
 });
 

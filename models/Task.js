@@ -36,6 +36,7 @@ const Task = sequelize.define(
     {
       tableName: 'Task',
       timestamps: true,
+      paranoid: true,
     },
 );
 
