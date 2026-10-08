@@ -6,6 +6,10 @@ import {
   updateTaskSchema,
   taskQuerySchema,
 } from '../validations/taskValidation.js';
+import {
+  createCollaboratorSchema,
+  removeCollaboratorSchema,
+} from '../validations/collaboratorValidation.js';
 
 import {
   createTaskController,
@@ -14,6 +18,11 @@ import {
   updateTaskController,
   deleteTaskController,
 } from '../controllers/taskController.js';
+
+import {
+  createCollaboratorController,
+  removeCollaboratorController,
+} from '../controllers/collaboratorController.js';
 
 const router = express.Router();
 
@@ -37,4 +46,14 @@ router.patch(
 );
 router.delete('/:id', deleteTaskController);
 
+router.post(
+    '/:id/collaborators',
+    validate(createCollaboratorSchema),
+    createCollaboratorController,
+);
+router.delete(
+    '/:id/collaborators/:userId',
+    validate(removeCollaboratorSchema, 'params'),
+    removeCollaboratorController,
+);
 export default router;

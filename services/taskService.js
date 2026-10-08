@@ -1,6 +1,6 @@
-import {Task} from '../models/index.js';
-import AppError from '../utils/AppError.js';
+import {Task, TaskCollaborator} from '../models/index.js';
 import {Op} from 'sequelize';
+import {getTaskAccess, requireTaskRole} from './taskAuthorizationService.js';
 
 import {
   clearTaskCache,
@@ -40,8 +40,28 @@ export const getTasks = async ( userId, filters) => {
     return cachResult;
   }
 
-  const where = {
-    userId,
+  const collaborators= await TaskCollaborator.findAll({
+    where: {
+      userId,
+    },
+    attributes: ['taskId'],
+  });
+
+  const sharedTaskIds=collaborators.map(
+      (collaboration)=>collaboration.taskId,
+  );
+
+  const where={
+    [Op.or]: [
+      {
+        userId,
+      },
+      {
+        id: {
+          [Op.in]: sharedTaskIds,
+        },
+      },
+    ],
   };
 
   if (filters.priority) {
@@ -106,16 +126,7 @@ export const getTasks = async ( userId, filters) => {
 };
 
 export const getTaskById = async (taskId, userId) => {
-  const task = await Task.findOne({
-    where: {
-      id: taskId,
-      userId,
-    },
-  });
-
-  if (!task) {
-    throw new AppError('Task not found', 404);
-  }
+  const {task}=await getTaskAccess(taskId, userId);
 
   return task;
 };
@@ -125,16 +136,12 @@ export const updateTask = async (
     userId,
     taskData,
 ) => {
-  const task = await Task.findOne({
-    where: {
-      id: taskId,
+  const {task}=await requireTaskRole(
+      taskId,
       userId,
-    },
-  });
+      ['owner', 'editor'],
+  );
 
-  if (!task) {
-    throw new AppError('Task not found', 404);
-  }
 
   await task.update(taskData);
 
@@ -147,16 +154,7 @@ export const deleteTask = async (
     taskId,
     userId,
 ) => {
-  const task = await Task.findOne({
-    where: {
-      id: taskId,
-      userId,
-    },
-  });
-
-  if (!task) {
-    throw new AppError('Task not found', 404);
-  }
+  const {task} = await requireTaskRole(taskId, userId, ['owner']);
 
   await task.destroy();
   clearTaskCache(userId);
