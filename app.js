@@ -7,6 +7,7 @@ import config from './config/config.js';
 import swaggerSpec from './config/swagger.js';
 import sequelize from './connection/database.js';
 
+import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import errorMiddleWare from './middleware/errorMiddleWare.js';
 import taskRoutes from './routes/taskRoutes.js';
@@ -15,9 +16,12 @@ import logger from './utils/logger.js';
 const app=express();
 app.use(helmet());
 app.use(cors());
+
 const PORT=config.port;
 
 app.use(express.json());
+
+app.use('/health', healthRoutes);
 
 app.use('/api-docs',
     swaggerUi.serve,
@@ -25,14 +29,6 @@ app.use('/api-docs',
 );
 
 app.use('/auth', authRoutes);
-
-app.get('/', (req, res)=>{
-  res.status(200).json({
-    status: 'ok',
-    service: 'Personal Task Manager API',
-    timestamp: new Date().toISOString(),
-  });
-});
 
 app.use('/tasks', taskRoutes);
 

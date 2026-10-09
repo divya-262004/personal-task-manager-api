@@ -1,4 +1,5 @@
 import {registerUser, loginUser} from '../services/authService.js';
+import logger from '../utils/logger.js';
 
 export const register=async (req, res, next)=>{
   try {
@@ -8,6 +9,10 @@ export const register=async (req, res, next)=>{
       username,
       email,
       password,
+    });
+
+    logger.info('User registered successfully', {
+      email,
     });
 
     res.status(201).json({
@@ -26,6 +31,10 @@ export const login=async (req, res, next)=>{
     const token =await loginUser({
       email,
       password,
+    });
+
+    logger.info('User logged in successfully', {
+      email,
     });
 
     res.status(200).json({

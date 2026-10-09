@@ -10,6 +10,7 @@ module.exports = {
   },
   rules: {
     'new-cap': 'off',
-    'require-jsdoc':'off'
+    'require-jsdoc': 'off',
+    'valid-jsdoc': 'off',
   },
 };
