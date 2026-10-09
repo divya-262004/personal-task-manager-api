@@ -24,6 +24,21 @@ import {
   removeCollaboratorController,
 } from '../controllers/collaboratorController.js';
 
+import uploadAttachmentMiddleware from
+  '../middleware/taskAttachmentMiddleware.js';
+
+import {
+  attachmentIdSchema,
+  taskIdSchema,
+} from '../validations/taskAttachmentValidator.js';
+
+import {
+  uploadAttachmentController,
+  downloadAttachmentController,
+  deleteAttachmentController,
+  restoreAttachmentController,
+} from '../controllers/taskAttachmentController.js';
+
 const router = express.Router();
 
 router.use(authMiddleWare);
@@ -56,4 +71,30 @@ router.delete(
     validate(removeCollaboratorSchema, 'params'),
     removeCollaboratorController,
 );
+
+router.post(
+    '/:id/attachments',
+    validate(taskIdSchema, 'params'),
+    uploadAttachmentMiddleware,
+    uploadAttachmentController,
+);
+
+router.get(
+    '/attachments/:attachmentId/download',
+    validate(attachmentIdSchema, 'params'),
+    downloadAttachmentController,
+);
+
+router.delete(
+    '/attachments/:attachmentId',
+    validate(attachmentIdSchema, 'params'),
+    deleteAttachmentController,
+);
+
+router.patch(
+    '/attachments/:attachmentId/restore',
+    validate(attachmentIdSchema, 'params'),
+    restoreAttachmentController,
+);
+
 export default router;
