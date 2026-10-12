@@ -4,6 +4,7 @@ import {
   getTaskById,
   updateTask,
   deleteTask,
+  syncTaskWithGoogleCalendar,
 } from '../services/taskService.js';
 
 export const createTaskController = async (req, res, next) => {
@@ -133,10 +134,30 @@ export const deleteTaskController = async (req, res, next) => {
         req.userId,
     );
 
-    return res.status(204).json({
-      message: 'Task deleted successfully',
-    });
+    return res.status(204).end();
   } catch (error) {
     next(error);
+  }
+};
+
+export const syncTaskWithGoogleCalendarController = async (
+    req,
+    res,
+    next,
+) => {
+  try {
+    const {id} = req.params;
+
+    const task = await syncTaskWithGoogleCalendar(
+        id,
+        req.userId,
+    );
+
+    return res.status(200).json({
+      message: 'Task synchronized with Google Calendar successfully',
+      task,
+    });
+  } catch (error) {
+    return next(error);
   }
 };
