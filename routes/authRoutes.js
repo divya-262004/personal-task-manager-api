@@ -9,7 +9,7 @@ import {
 } from '../validations/authValidation.js';
 
 const router=express.Router();
-const loginRateLimiter=createRateLimiter(60*1000, 5);
+const loginRateLimiter=createRateLimiter(60, 5);
 
 router.post(
     '/register',

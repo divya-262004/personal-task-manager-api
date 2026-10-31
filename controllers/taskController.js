@@ -69,7 +69,7 @@ export const getTasksController = async (req, res, next) => {
 
 export const getTaskByIdController = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const {id} = req.validatedParams;
 
     const task = await getTaskById(
         id,
@@ -86,7 +86,7 @@ export const getTaskByIdController = async (req, res, next) => {
 
 export const updateTaskController = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const {id} = req.validatedParams;
 
     const allowedFields = [
       'title',
@@ -102,12 +102,6 @@ export const updateTaskController = async (req, res, next) => {
       if (req.body[field] !== undefined) {
         taskData[field] = req.body[field];
       }
-    }
-
-    if (Object.keys(taskData).length === 0) {
-      return res.status(400).json({
-        message: 'At least one valid field is required',
-      });
     }
 
     const task = await updateTask(
@@ -127,7 +121,7 @@ export const updateTaskController = async (req, res, next) => {
 
 export const deleteTaskController = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const {id} = req.validatedParams;
 
     await deleteTask(
         id,

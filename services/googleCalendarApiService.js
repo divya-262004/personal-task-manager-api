@@ -82,14 +82,14 @@ const createGoogleCalendarEvent = async (userId, task) => {
       return {id: task.googleEventId};
     }
 
-    const startDate = new Date(task.dueDate);
+    const endDate = new Date(task.dueDate);
 
-    if (Number.isNaN(startDate.getTime())) {
+    if (Number.isNaN(endDate.getTime())) {
       throw new AppError('Invalid task due date', 400);
     }
 
-    const endDate = new Date(
-        startDate.getTime() + 60 * 60 * 1000,
+    const startDate = new Date(
+        endDate.getTime() - 60 * 60 * 1000,
     );
 
     const eventId = createHash('sha256')
@@ -158,14 +158,14 @@ const updateGoogleCalendarEvent= async (userId, task)=>{
       );
     }
 
-    const startDate= new Date(task.dueDate);
+    const endDate= new Date(task.dueDate);
 
-    if (Number.isNaN(startDate.getTime())) {
+    if (Number.isNaN(endDate.getTime())) {
       throw new AppError('Invalid task due date', 400);
     }
 
-    const endDate= new Date(
-        startDate.getTime() + 60*60*1000,
+    const startDate= new Date(
+        endDate.getTime() - 60*60*1000,
     );
 
     const calendar= await getGoogleCalendarClient(userId);

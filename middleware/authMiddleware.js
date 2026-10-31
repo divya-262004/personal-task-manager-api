@@ -1,31 +1,41 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/config.js';
+import AppError from '../utils/AppError.js';
 
 const authMiddleWare=(req, res, next)=>{
   try {
     const authHeader=req.headers.authorization;
 
     if (!authHeader) {
-      return res.status(401).json({
-        message: 'Authorization token required',
-      });
+      throw new AppError('Authorization token required', 401);
     }
 
-    const token=authHeader.split(' ')[1];
+    const [scheme, token]=authHeader.split(' ');
+
+    if (scheme !== 'Bearer' || !token) {
+      throw new AppError('Invalid authorization header', 401);
+    }
+
     const decoded = jwt.verify(
         token,
         config.jwt.secret,
     );
 
-    req.userId = decoded.userId;
+    const userId = Number(decoded.userId);
 
-    next();
+    if (!Number.isSafeInteger(userId)|| userId<=0) {
+      throw new AppError('Invalid authentication token', 401);
+    }
+
+    req.userId = userId;
+
+    return next();
   } catch (error) {
-    res.status(500).json(
-        {
-          message: 'Authentication failed',
-        },
-    );
+    if (error instanceof AppError) {
+      return next(error);
+    }
+
+    return next(new AppError('Authentication failed', 401));
   }
 };
 

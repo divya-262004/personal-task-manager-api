@@ -1,59 +1,28 @@
+import {RateLimiterRedis} from 'rate-limiter-flexible';
+import {redisClient} from '../connection/redis.js';
+import AppError from '../utils/AppError.js';
+
 const createRateLimiter = (windowMs, maxRequests) => {
-  const reqStore = new Map();
+  const rateLimiter= new RateLimiterRedis({
+    storeClient: redisClient,
+    useRedisPackage: true,
+    keyPrefix: 'rate-limit-login',
+    points: maxRequests,
+    duration: windowMs,
+  });
 
-  const cleanupInterval = setInterval(() => {
-    const currTime = Date.now();
-
-    for (const [clientIp, clientData] of reqStore.entries()) {
-      if (currTime - clientData.windowStart >= windowMs) {
-        reqStore.delete(clientIp);
-      }
-    }
-  }, windowMs);
-
-  cleanupInterval.unref();
-
-  return (req, res, next) => {
+  return async (req, res, next)=>{
     try {
-      const clientIp = req.ip;
-      const currTime = Date.now();
-
-      const clientData = reqStore.get(clientIp);
-
-      if (!clientData) {
-        reqStore.set(clientIp, {
-          count: 1,
-          windowStart: currTime,
-        });
-
-        return next();
-      }
-
-      const elapsedTime =
-                currTime - clientData.windowStart;
-
-      if (elapsedTime >= windowMs) {
-        reqStore.set(clientIp, {
-          count: 1,
-          windowStart: currTime,
-        });
-
-        return next();
-      }
-
-      clientData.count += 1;
-
-      if (clientData.count > maxRequests) {
-        return res.status(429).json({
-          message: 'Too many requests. Please try again later.',
-        });
-      }
-
+      await rateLimiter.consume(req.ip);
       return next();
     } catch (error) {
-      return res.status(500).json({
-        message: 'Rate limiting failed',
-      });
+      if (error.remainingPoints!==undefined) {
+        return next(
+            new AppError('Too many requests. Please try again later.', 429),
+        );
+      }
+
+      next(error);
     }
   };
 };

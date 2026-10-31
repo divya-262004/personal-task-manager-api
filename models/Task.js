@@ -32,6 +32,21 @@ const Task = sequelize.define(
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      googleEventId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      googleSyncStatus: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'not_synced',
+      },
+
+      googleSyncError: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
     },
     {
       tableName: 'Task',

@@ -12,6 +12,8 @@ const createTaskSchema=Joi.object({
 
   dueDate: Joi.date().iso().required(),
 
+  reminderAt: Joi.date().iso().allow(null).optional(),
+
   status: Joi.string()
       .valid('pending', 'completed')
       .required(),
@@ -29,6 +31,8 @@ const updateTaskSchema=Joi.object({
       .optional(),
 
   dueDate: Joi.date().iso().optional(),
+
+  reminderAt: Joi.date().iso().allow(null).optional(),
 
   status: Joi.string()
       .valid('pending', 'completed')

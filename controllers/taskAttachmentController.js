@@ -2,7 +2,6 @@ import {
   uploadAttachmentService,
   getAttachmentDownloadUrlService,
   softDeleteAttachmentService,
-  restoreAttachmentService,
 } from '../services/taskAttachmentService.js';
 
 const uploadAttachmentController=async (req, res, next)=>{
@@ -50,25 +49,8 @@ const deleteAttachmentController= async (req, res, next)=>{
   }
 };
 
-const restoreAttachmentController = async (req, res, next) => {
-  try {
-    const attachment = await restoreAttachmentService({
-      attachmentId: Number(req.params.attachmentId),
-      userId: req.userId,
-    });
-
-    return res.status(200).json({
-      message: 'Attachment restored successfully',
-      attachment,
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
 export {
   uploadAttachmentController,
   downloadAttachmentController,
   deleteAttachmentController,
-  restoreAttachmentController,
 };

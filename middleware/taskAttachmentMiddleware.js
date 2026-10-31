@@ -1,6 +1,7 @@
 import multer from 'multer';
 import AppError from '../utils/AppError.js';
 import {fileTypeFromBuffer} from 'file-type';
+import {TextDecoder} from 'node:util';
 
 const storage = multer.memoryStorage();
 
@@ -52,24 +53,40 @@ const uploadAttachmentMiddleware = (req, res, next) => {
     }
 
     try {
-      const detectedType = await fileTypeFromBuffer(req.file.buffer);
+      const {buffer, mimetype} = req.file;
 
-      if (
-        !detectedType ||
-        !allowedMimeTypes.includes(detectedType.mime) ||
-        detectedType.mime !== req.file.mimetype
-      ) {
-        return next(
-            new AppError('File content does not match its type', 400),
-        );
+      if (mimetype==='text/plain') {
+        const decoder= new TextDecoder('utf-8', {
+          fatal: true,
+        });
+
+        const content= decoder.decode(buffer);
+
+        if (content.includes('\0')) {
+          return next(
+              new AppError('Invalid text file content', 400),
+          );
+        }
+      } else {
+        const detectedType= await fileTypeFromBuffer(buffer);
+
+        if (!detectedType||detectedType.mime!==mimetype) {
+          return next(
+              new AppError('File content doesnot match its type', 400),
+          );
+        }
       }
 
       return next();
     } catch (validationError) {
+      if (validationError instanceof TypeError) {
+        return next(
+            new AppError('Invalid file content', 400),
+        );
+      }
+
       return next(validationError);
     }
-
-    return next();
   });
 };
 

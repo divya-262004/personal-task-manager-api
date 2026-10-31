@@ -22,6 +22,11 @@ const validate=(schema, property='body')=>{
       req.validatedQuery = value;
     }
 
+    if (property === 'params') {
+      req.validatedParams = value;
+    }
+
+
     return next();
   };
 };

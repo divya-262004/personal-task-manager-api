@@ -1,5 +1,6 @@
-const cacheStore=new Map();
-const DEFAULT_TTL=60*1000;
+import {redisClient} from '../connection/redis.js';
+
+const DEFAULT_TTL=60;
 
 export const createTaskCacheKey=(userId, filters)=>{
   const normalizedFilters={
@@ -16,33 +17,37 @@ export const createTaskCacheKey=(userId, filters)=>{
   return `tasks:${userId}:${JSON.stringify(normalizedFilters)}`;
 };
 
-export const setCache=(key, data, ttl=DEFAULT_TTL)=>{
-  cacheStore.set(key, {
-    data,
-    expiresAt: Date.now()+ttl,
-  });
+export const setCache=async (key, data, ttl=DEFAULT_TTL)=>{
+  await redisClient.set(
+      key,
+      JSON.stringify(data),
+      {EX: ttl},
+  );
 };
 
-export const getCache=(key)=>{
-  const cacheItem=cacheStore.get(key);
+export const getCache=async (key)=>{
+  const cacheData=await redisClient.get(key);
 
-  if (!cacheItem) {
+  if (cacheData===null) {
     return null;
   }
 
-  if (Date.now()>=cacheItem.expiresAt) {
-    cacheStore.delete(key);
-  }
-
-  return cacheItem.data;
+  return JSON.parse(cacheData);
 };
 
-export const clearTaskCache=(userId)=>{
-  const prefix=`task:${userId}`;
+export const clearTaskCache=async (userId)=>{
+  const prefix=`task:${userId}:`;
+  let cursor= '0';
 
-  for (const key of cacheStore.keys()) {
-    if (key.startsWith(prefix)) {
-      cacheStore.delete(key);
+  do {
+    const result = await redisClient.scan(cursor, {
+      MATCH: `${prefix}*`,
+      COUNT: 100,
+    });
+
+    cursor=result.cursor;
+    if (result.keys.length>0) {
+      await redisClient.del(result.keys);
     }
-  }
+  } while (cursor!=='0');
 };

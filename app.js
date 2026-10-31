@@ -20,6 +20,7 @@ import logger from './utils/logger.js';
 
 import startTaskAttachmentCleanupJob from './jobs/taskAttachmentCleanupJob.js';
 import startTaskReminderJob from './jobs/taskReminderJob.js';
+import startTaskDigestJob from './jobs/taskDigestJob.js';
 
 const app=express();
 
@@ -53,6 +54,7 @@ const startServer = async () => {
     await connectRedis();
     startTaskAttachmentCleanupJob();
     startTaskReminderJob();
+    startTaskDigestJob();
 
     app.listen(PORT, () => logger.info(`server running at port ${PORT}`));
   } catch (error) {

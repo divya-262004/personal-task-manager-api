@@ -1,10 +1,11 @@
 import {randomUUID} from 'node:crypto';
 import {TaskAttachment} from '../models/index.js';
+import {Op} from 'sequelize';
+
 import {
   uploadFile,
   deleteFile,
   getDownloadUrl,
-  fileExists,
 } from './s3Service.js';
 import {
   getTaskAccess,
@@ -92,41 +93,34 @@ const softDeleteAttachmentService = async ({
   return attachment;
 };
 
-const restoreAttachmentService = async ({
-  attachmentId,
-  userId,
-}) => {
-  const attachment = await TaskAttachment.findByPk(
-      attachmentId,
-      {paranoid: false},
-  );
+const cleanupExpiredAttachmentsService= async ()=>{
+  const cuttOffDate=new Date();
+  cuttOffDate.setDate(cuttOffDate.getDate()-30);
 
-  if (!attachment || !attachment.deletedAt) {
-    throw new AppError('Deleted attachment not found', 404);
+  const attachments=await TaskAttachment.findAll({
+    where: {
+      deletedAt: {
+        [Op.lte]: cuttOffDate,
+      },
+    },
+    paranoid: false,
+  });
+
+  for (const attachment of attachments) {
+    try {
+      await deleteFile(attachment.objectKey);
+      await attachment.destroy({force: true});
+    } catch (error) {
+      logger.error('Attachment cleanup failed', {
+        attachmentId: attachment.id,
+        error: error.message,
+      });
+    }
   }
-
-  await requireTaskRole(
-      attachment.taskId,
-      userId,
-      ['owner', 'editor'],
-  );
-
-  const exists = await fileExists(attachment.objectKey);
-
-  if (!exists) {
-    throw new AppError(
-        'Attachment file no longer exists in storage',
-        404,
-    );
-  }
-  await attachment.restore();
-
-  return attachment;
 };
-
 export {
   uploadAttachmentService,
   getAttachmentDownloadUrlService,
   softDeleteAttachmentService,
-  restoreAttachmentService,
+  cleanupExpiredAttachmentsService,
 };

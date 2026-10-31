@@ -17,6 +17,7 @@ import {
   getTaskByIdController,
   updateTaskController,
   deleteTaskController,
+  syncTaskWithGoogleCalendarController,
 } from '../controllers/taskController.js';
 
 import {
@@ -36,7 +37,6 @@ import {
   uploadAttachmentController,
   downloadAttachmentController,
   deleteAttachmentController,
-  restoreAttachmentController,
 } from '../controllers/taskAttachmentController.js';
 
 const router = express.Router();
@@ -53,16 +53,23 @@ router.get(
     validate(taskQuerySchema, 'query'),
     getTasksController,
 );
-router.get('/:id', getTaskByIdController);
+router.get(
+    '/:id',
+    validate(taskIdSchema, 'params'),
+    getTaskByIdController);
 router.patch(
     '/:id',
+    validate(taskIdSchema, 'params'),
     validate(updateTaskSchema),
     updateTaskController,
 );
-router.delete('/:id', deleteTaskController);
+router.delete('/:id',
+    validate(taskIdSchema, 'params'),
+    deleteTaskController);
 
 router.post(
     '/:id/collaborators',
+    validate(taskIdSchema, 'params'),
     validate(createCollaboratorSchema),
     createCollaboratorController,
 );
@@ -91,10 +98,10 @@ router.delete(
     deleteAttachmentController,
 );
 
-router.patch(
-    '/attachments/:attachmentId/restore',
-    validate(attachmentIdSchema, 'params'),
-    restoreAttachmentController,
+router.post(
+    '/:id/google-calendar-sync',
+    validate(taskIdSchema, 'params'),
+    syncTaskWithGoogleCalendarController,
 );
 
 export default router;
